@@ -1,0 +1,54 @@
+body {
+  overflow: hidden;
+}
+ul {
+  overflow-y: scroll;
+  height: 55vh;
+}
+li {
+  list-style: none;
+  background-color: burlywood;
+  margin: 0;
+  margin-right: 3%;
+  padding: 0.4em;
+  overflow-wrap: break-word;
+}
+li:nth-child(2n) {
+  background-color: blanchedalmond;
+}
+
+form[message] {
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1%;
+  justify-content: center;
+  background-color: cornflowerblue;
+}
+
+@media only screen and (min-width: 400px) {
+  form {
+    flex-direction: row;
+    justify-content: right; 
+  }
+}
+
+@media only screen and (min-width: 700px) {
+  body {
+    margin: 10%;
+  }
+}
+
+input {
+  flex-grow: 1;
+}
+
+button {
+  flex-grow: 1;
+}
+
+.new-user {
+  font-style: italic;
+  background-color: cyan !important;
+}

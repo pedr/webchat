@@ -2,44 +2,32 @@
 <html>
   <head>
     <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="index-style.css" rel="stylesheet" type="text/css">
+
     <title>My websocket chat</title>
   </head>
 
   <!-- STYLE -->
-  <style>
-    * {
-      margin: 10px;
-    }
-    form {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      padding: 3px;
-    }
-    li {
-      list-style: none;
-      background-color: burlywood;
-      margin: 0;
-      padding: 0.4em;
-    }
-    li:nth-child(2n) {
-      background-color: blanchedalmond;
-    }
-
-    .new-user {
-      font-style: italic;
-      background-color: cyan !important;
-    }
-  </style>
   
   <!-- BODY -->
   <body>
-    <h1>Hello my websocket chat</h1>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" />
-      <button>Send</button>
-    </form>
+    <h2>chat</h2>
+    <div id="chat">
+      
+      <ul id="messages"></ul>
+      <div class="another">
+        <form action="" id="setNick">
+          <input id="nickname" autocomplete="off"/>
+          <button>Set nickname</button>
+        </form>
+
+        <form action="" name="message">
+          <input id="m" autocomplete="off" />
+          <button class="send">Send</button>
+        </form>
+      </div>
+    </div>
 
     <!-- SCRIPTS -->
     <script src="/socket.io/socket.io.js"></script>

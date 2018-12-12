@@ -2,21 +2,34 @@
 /* jshint esversion: 6*/
 
 const socket = io();
-const form = document.querySelector('form');
-const sendButton = document.querySelector('button');
+const sendButton = document.querySelector('.send');
+const nickButton = document.querySelector('#setNick > button');
+
+// user needs to set a nick to be able to connect to '/chatroom' HOPEFULLY
+nickButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  const form = document.querySelector('#setNick');
+  const nickCampo = document.querySelector('#nickname');
+  const nick = nickCampo.value;
+  socket.emit('set nick', nick);
+  nickCampo.value = '';
+  form.remove();
+});
 
 sendButton.addEventListener('click', (event) => {
   event.preventDefault();
   event.stopPropagation();
-  const message = form.firstElementChild.value;
-  socket.emit('chat message', message);
-  form.firstElementChild.value = '';
+  const msgCampo = document.querySelector('#m');
+  const message = msgCampo.value;
+  socket.emit('chat message', socket.id, message);
+  msgCampo.value = '';
 });
 
-socket.on('chat message', msg => newMsg(msg));
-socket.on('new user', () => newMsg('a new user has entered the room', 'new-user'));
+socket.on('chat message', obj => newMsg(obj.nickname, obj.message));
+socket.on('new user', (nick) => newMsg(nick, 'entrou na sala!!', 'new-user'));
 
-function newMsg(text, msgClass) {
+function newMsg(nick, text, msgClass) {
   let listMessages = document.getElementById('messages');
   let message = document.createElement('li');
   if (msgClass) {
@@ -25,6 +38,6 @@ function newMsg(text, msgClass) {
   if (text == '') {
     text = '\u00A0';
   }
-  message.appendChild(document.createTextNode(text));
+  message.appendChild(document.createTextNode(nick + ": " + text));
   listMessages.appendChild(message);
 }
