@@ -26,8 +26,7 @@ sendButton.addEventListener('click', (event) => {
 });
 
 socket.on('chat message', obj => newMsg(obj.nickname, obj.message));
-socket.on('new user', (nick) => newMsg(nick, 'entrou na sala!!', 'user-event'));
-socket.on('users online', obj => newMsg(obj.nickname, obj.message, 'user-event'));
+socket.on('system message', obj => newMsg(obj.type, obj.message, 'user-event'));
 
 function newMsg(nick, text, msgClass) {
   let listMessages = document.getElementById('messages');
@@ -40,4 +39,5 @@ function newMsg(nick, text, msgClass) {
   }
   message.appendChild(document.createTextNode(nick + ": " + text));
   listMessages.appendChild(message);
+  listMessages.scrollTop = message.offsetHeight + message.offsetTop;
 }
