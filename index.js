@@ -8,8 +8,7 @@ const io = require('socket.io')(http);
 const ROOM = 'private';
 
 const PORT = process.env.PORT || 8000;
-let ALL_USERS = [];
-let last_user = {};
+let ALL_USERS = {};
 
 app.use(express.static('public'));
 
@@ -18,35 +17,46 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  socket.on('set nick', (nick) => {
-    const user = {};
-    user.id = socket.id;
-    user.nickname = nick;
-    last_user = new Object(user);
-    ALL_USERS.push(user);
+  socket.on('set nick', (nome) => {
+    const user = {
+      nickname: nome,
+      id: socket.id
+    };
+    ALL_USERS[user.id] = user;
 
     io.to(ROOM).emit('new user', user.nickname);
+    const info = {
+      nickname: 'COMANDO ! ',
+      message: '?users = show users online'
+    };
+    socket.emit('chat message', info);
     socket.join(ROOM);
   });
   
   socket.on('chat message', (id_sender, msg) => {
-    console.log(msg, id_sender);
-    let nick = getNick(id_sender);
-    io.to(ROOM).emit('chat message', {nickname: nick, message: msg});
+    if (ALL_USERS[id_sender] == null) return; // socket sem nick, mensagem não enviada
+
+    if (msg.trim() == "?users") {
+      const users = Object.keys(ALL_USERS).map( usr => ALL_USERS[usr].nickname);
+      io.to(ROOM).emit('users online', {nickname: 'ONLINE', message: users.toString()});
+      return;
+    }
+
+    const sender = ALL_USERS[id_sender].nickname;
+    io.to(ROOM).emit('chat message', {nickname: sender, message: msg});
+  });
+
+  socket.on('disconnect', () => {
+    if (ALL_USERS[socket.id] == null) return;
+    const user = new Object(ALL_USERS[socket.id]);
+    delete ALL_USERS[socket.id];
+    const info = {
+      nickname: user.nickname,
+      message: 'SAIU DA SALA'
+    };
+    io.to(ROOM).emit('chat message', info);
   });
 });
-
-// id = socket.id
-function getNick(id) {
-  console.table(ALL_USERS);
-  for (let user of ALL_USERS) {
-    if (user.id == id) {
-      return user.nickname;
-    }
-  }
-  return null;
-}
-
 
 http.listen(PORT, () => {
   console.log(`Server running at ${PORT}`);

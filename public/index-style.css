@@ -48,7 +48,7 @@ button {
   flex-grow: 1;
 }
 
-.new-user {
+.user-event {
   font-style: italic;
   background-color: cyan !important;
 }

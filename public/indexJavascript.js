@@ -5,7 +5,6 @@ const socket = io();
 const sendButton = document.querySelector('.send');
 const nickButton = document.querySelector('#setNick > button');
 
-// user needs to set a nick to be able to connect to '/chatroom' HOPEFULLY
 nickButton.addEventListener('click', (event) => {
   event.preventDefault();
   event.stopPropagation();
@@ -27,7 +26,8 @@ sendButton.addEventListener('click', (event) => {
 });
 
 socket.on('chat message', obj => newMsg(obj.nickname, obj.message));
-socket.on('new user', (nick) => newMsg(nick, 'entrou na sala!!', 'new-user'));
+socket.on('new user', (nick) => newMsg(nick, 'entrou na sala!!', 'user-event'));
+socket.on('users online', obj => newMsg(obj.nickname, obj.message, 'user-event'));
 
 function newMsg(nick, text, msgClass) {
   let listMessages = document.getElementById('messages');
