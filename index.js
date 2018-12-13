@@ -7,8 +7,8 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
 const ROOM = 'private';
-const PORT = process.env.PORT || 8000;
-let usersOnline = {};
+const PORT = process.env.PORT || 5000;
+let usersOnline = [];
 
 app.use(express.static('public'));
 
@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
       nickname: nome,
       id: socket.id
     };
-    usersOnline[user.id] = user;
+    usersOnline.push(user);
 
     io.to(ROOM).emit('system message', {type: user.nickname, message: 'entrou na sala!!'});
     const info = {
@@ -38,28 +38,30 @@ io.on('connection', (socket) => {
   });
   
   socket.on('chat message', (id_sender, msg) => {
-    if (usersOnline[id_sender] == null) return; // socket sem nick, mensagem não enviada
+    const senderIndex = usersOnline.findIndex(u => u.id == id_sender);
+    if (senderIndex == -1) return; // socket sem nick, mensagem não enviada
 
     if (msg.trim() == "?users") {
-      const users = Object.keys(usersOnline).map( usr => usersOnline[usr].nickname);
+      let users = usersOnline.map( u => u.nickname);
       io.to(ROOM).emit('system message', {type: 'ONLINE', message: users.toString()});
       return;
     }
 
     if (msg.trim() == "?baile") {
-      usersOnline = baile();
+      usersOnline = baile(usersOnline);
       io.to(ROOM).emit('system message', {type: "É A NOVA ERA", message: "BAILE DAS MASCARA"});
       return;
     }
 
-    const sender = usersOnline[id_sender].nickname;
+    const sender = usersOnline.find(u => u.id == socket.id).nickname;
     io.to(ROOM).emit('chat message', {nickname: sender, message: msg});
   });
 
   socket.on('disconnect', () => {
-    if (usersOnline[socket.id] == null) return;
-    let user = Object.assign({}, usersOnline[socket.id]);
-    delete usersOnline[socket.id];
+    const userIndex = usersOnline.findIndex( u => u.id == socket.id);
+    if (userIndex == -1) return; // user não colocou nick, findIndex returns -1 se não encontrado
+    let users = usersOnline.splice(userIndex, 1);
+    const user = users[0];
     const info = {
       type: '>>> SAIU DA SALA',
       message: user.nickname
@@ -68,17 +70,15 @@ io.on('connection', (socket) => {
   });
 });
 
-function baile() {
-  let userKeys = Object.keys(usersOnline);
-  let another = {};
-  for (let posInicial = 0; posInicial < userKeys.length; posInicial++) {
-    let novaPos = Math.floor(Math.random() * (userKeys.length - 1));
-    const chaveInicial = userKeys[posInicial];
-    const chaveRandom = userKeys[novaPos];
-    another[chaveRandom] = Object.assign({}, usersOnline[chaveInicial]);
-    another[chaveInicial] = Object.assign({}, usersOnline[chaveRandom]);
+function baile(listaUsers) {
+  for (let posInicial = listaUsers.length - 1; posInicial > 0; posInicial--) {
+    let posRandom = Math.floor(Math.random() * (posInicial + 1));
+
+    let tmp = listaUsers[posInicial].nickname;
+    listaUsers[posInicial].nickname = listaUsers[posRandom].nickname;
+    listaUsers[posRandom].nickname = tmp;
   }
-  return another;
+  return listaUsers;
 }
 
 http.listen(PORT, () => {
