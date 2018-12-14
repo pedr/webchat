@@ -7,8 +7,7 @@ const io = require('socket.io')(http);
 const path = require('path');
 require('dotenv').config();
 const bodyParser = require('body-parser');
-const pool = require('./database.js');
-const login = require('./routes/login.js');
+const credenciamento = require('./routes/credenciamento.js');
 
 const ROOM = 'private';
 const PORT = process.env.PORT || 5000;
@@ -20,23 +19,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(PUBLIC, '/chat.html'));
+  res.sendFile(path.join(PUBLIC, '/index.html'));
 });
 
-app.get('/login', login.get);
-app.post('/login', login.logar);
-
-app.get('/db', async (req, res) => {
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM users');
-    const results = { results: (result) ? result.rows : null };
-    res.send(results);
-    client.release();
-  } catch (e) {
-    res.send('error >>', e);
-  }
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, '/pages/chat.html'));
 });
+
+app.get('/login', credenciamento.getLogin);
+app.post('/login', credenciamento.logar);
+
+app.get('/registrar', credenciamento.getRegistrar);
+app.post('/registrar', credenciamento.registrar);
 
 io.on('connection', (socket) => {
   socket.on('set nick', (nome) => {
