@@ -3,14 +3,11 @@ const socket = io();
 const sendButton = document.querySelector('.send');
 const nickButton = document.querySelector('#setNick > button');
 
-function newMsg(nick, text, msgClass) {
+function newMsg(nick, text = '\u00A0', msgClass) {
   const listMessages = document.getElementById('messages');
   const message = document.createElement('li');
   if (msgClass) {
     message.classList.add(msgClass);
-  }
-  if (text === '') {
-    text = '\u00A0';
   }
   const fullMessage = `${nick}: ${text}`;
   message.appendChild(document.createTextNode(fullMessage));
