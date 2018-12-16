@@ -1,12 +1,13 @@
 
+require('dotenv').config();
+const path = require('path');
+const bodyParser = require('body-parser');
 const express = require('express');
 
 const app = express();
 const http = require('http').Server(app);
-const path = require('path');
-require('dotenv').config();
-const bodyParser = require('body-parser');
 const io = require('socket.io')(http);
+
 const credenciamento = require('./routes/credenciamento.js');
 const webChat = require('./routes/socketChat');
 
