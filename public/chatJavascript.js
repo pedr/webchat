@@ -2,6 +2,7 @@
 // eslint-disable-next-line no-undef
 const socket = io();
 const sendButton = document.querySelector('.send');
+const EMPTY_CHAR = '\u00A0';
 
 const cookiesArray = document.cookie.split('; ').map(ele => ele.split('='));
 const cookies = cookiesArray.reduce((total, next) => {
@@ -13,7 +14,7 @@ const cookies = cookiesArray.reduce((total, next) => {
 
 const { username, session } = cookies;
 
-function newMsg(nick, text = '\u00A0', msgClass) {
+function newMsg(nick, text = EMPTY_CHAR, msgClass) {
   const listMessages = document.getElementById('messages');
   const message = document.createElement('li');
   if (msgClass) {

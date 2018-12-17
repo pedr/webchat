@@ -1,67 +1,72 @@
 
-const { getCookies, baile } = require('../services/chatUtils.js');
+const { getCookies } = require('../services/chatUtils.js');
+const db = require('../services/database.js');
 
 const ROOM = 'private';
-let usersOnline = [];
 const INFO = {
   nickname: '>>> COMANDO',
   message: '?users ?baile',
 };
 
-function newUserOnChat(session) {
-  const socket = this;
-  const { username } = getCookies(socket.request.headers.cookie);
-  const user = {
-    nickname: username,
-    token: session,
-  };
-  usersOnline.push(user);
+async function newUserOnChat(session) {
+  try {
+    const socket = this;
+    const { nickname, id } = await db.getUserByToken(session);
+    db.addUserOnline(id);
+    const username = nickname;
 
-  socket.emit('chat message', INFO);
-  socket.join(ROOM);
-  socket.to(ROOM).emit('system message',
-    { type: user.nickname, message: 'entrou' });
-  return user;
-}
-
-/*
-  !!! HACK
-  preciso descobrir como acessar o server io daqui para manter o código
-  mais organizado a função acaba retornando null para um erro
-  (socket ainda não possui nick) e pra se a mensagem foi enviada com sucesso
-*/
-function chatMessage(session, msg) {
-  const socket = this;
-
-  if (msg.trim() === '?users') {
-    const users = usersOnline.map(u => u.nickname);
-    const obj = { type: 'ONLINE', message: users.toString() };
-    return obj;
+    socket.emit('chat message', INFO);
+    socket.join(ROOM);
+    socket.to(ROOM).emit('system message',
+      { type: username, message: 'entrou' });
+  } catch (err) {
+    console.error(err);
   }
+}
 
-  if (msg.trim() === '?baile') {
-    usersOnline = baile(usersOnline);
-    const obj = { type: 'É A NOVA ERA', message: 'BAILE DAS MASCARA' };
-    return obj;
+async function comando(msg, io) {
+  try {
+    if (msg.trim() === '?users') {
+      const users = await db.getUsersOnline();
+      const obj = { type: 'ONLINE', message: users.toString() };
+      io.to(ROOM).emit('system message', obj);
+      return;
+    }
+  } catch (err) {
+    console.error(err);
   }
-
-  const sender = usersOnline.find(u => u.token === session).nickname;
-  socket.to(ROOM).emit('chat message',
-    { nickname: sender, message: msg });
-  return null;
 }
 
-function disconnect() {
-  const socket = this;
-  const { session } = getCookies(socket.request.headers.cookie);
-  const userIndex = usersOnline.findIndex(u => u.token === session);
-  if (userIndex === -1) return; // user não colocou nick, findIndex returns -1 se não encontrado
-  const users = usersOnline.splice(userIndex, 1);
-  const user = users[0];
-  socket.to(ROOM).emit('system message',
-    { type: '>>> SAIU DA SALA', message: user.nickname });
+async function chatMessage(session, msg, io) {
+  try {
+    const socket = this;
+
+    const { nickname } = await db.getUserByToken(session);
+    const username = nickname;
+    if (msg[0] === '?') {
+      comando(msg, io);
+      return;
+    }
+
+    socket.to(ROOM).emit('chat message',
+      { nickname: username, message: msg });
+  } catch (err) {
+    console.error(err);
+  }
 }
 
+async function disconnect() {
+  try {
+    const socket = this;
+    const { session } = getCookies(socket.request.headers.cookie);
+    const { nickname, id } = await db.getUserByToken(session);
+    db.removeUserOnline(id);
+    socket.to(ROOM).emit('system message',
+      { type: '>>> SAIU DA SALA', message: nickname });
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 module.exports = {
   newUserOnChat,

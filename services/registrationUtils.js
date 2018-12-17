@@ -17,12 +17,17 @@ async function hashPassword(password, salt) {
 
 async function registrationCheck(senha, nickname) {
   const MIN_SIZE_PASSWORD = 4; // !!! número baixo para facilitar teste;
+  const MIN_SIZE_NICKNAME = 4;
+  const MAX_SIZE_NICKNAME = 25;
   try {
     if (senha.length < MIN_SIZE_PASSWORD) {
       return false;
     }
     const findIfUserExist = await getUserByNickname(nickname);
     if (findIfUserExist !== null) {
+      return false;
+    }
+    if (nickname.length < MIN_SIZE_NICKNAME || nickname.length > MAX_SIZE_NICKNAME) {
       return false;
     }
   } catch (err) {

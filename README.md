@@ -1,3 +1,2 @@
 
-A simple webchat made with Node.js to learn more about authentication and how socket.io works.
-https://socket.io/get-started/chat/
+A simple webchat made with Node.js and Postgresql to learn more about authentication, socket.io and webdev in general.
