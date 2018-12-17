@@ -1,3 +1,3 @@
 
-A simple project made with express and socket.io based on tutorial from
+A simple webchat made with Node.js to learn more about authentication and how socket.io works.
 https://socket.io/get-started/chat/

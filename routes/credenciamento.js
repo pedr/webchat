@@ -1,51 +1,9 @@
 
-const path = require('path');
 const crypto = require('crypto');
-const util = require('util');
-const db = require('../database.js');
+const { pool, insertToken } = require('../services/database.js');
+const { hashPassword, registrationCheck } = require('../services/registrationUtils.js');
 
-const { pool } = db;
-const SALT_SIZE = 64;
-
-async function hashPassword(password, salt) {
-  const HASH_SIZE = 128;
-  const scrypt = util.promisify(crypto.scrypt);
-  try {
-    const hashBuffer = await scrypt(password, salt, HASH_SIZE);
-    const hash = hashBuffer.toString('base64');
-    return hash;
-  } catch (err) {
-    return null;
-  }
-}
-
-async function registrationCheck(senha, nickname) {
-  const MIN_SIZE_PASSWORD = 4; // !!! número baixo para facilitar teste;
-  try {
-    if (senha.length < MIN_SIZE_PASSWORD) {
-      return false;
-    }
-    const findIfUserExist = await db.getUserByNickname(nickname);
-    if (findIfUserExist !== null) {
-      return false;
-    }
-  } catch (err) {
-    return false;
-  }
-  return true;
-}
-
-/* ROTAS */
-
-const getRegistrar = (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/registrar.html'));
-};
-
-const getLogin = (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/login.html'));
-};
-
-const logar = async (req, res) => {
+const entrar = async (req, res) => {
   const { nickname } = req.body;
   const userGivenPassword = req.body.password;
   try {
@@ -58,7 +16,7 @@ const logar = async (req, res) => {
       return;
     }
 
-    const { password, salt } = result.rows[0];
+    const { id, password, salt } = result.rows[0];
     const userGivenHash = await hashPassword(userGivenPassword, salt);
 
     if (userGivenHash === null) {
@@ -70,13 +28,22 @@ const logar = async (req, res) => {
       res.send('credenciais invalidas');
       return;
     }
+    const session = crypto.randomBytes(32).toString('hex');
+    const sucess = await insertToken(id, session);
+    if (!sucess) {
+      throw new Error('não conseguiu criar session token');
+    }
+    res.append('Set-Cookie', `username=${nickname}`);
+    res.append('Set-Cookie', `session=${session}`);
     res.redirect('/chat');
   } catch (e) {
+    console.log(e);
     res.redirect('/login');
   }
 };
 
-const registrar = async (req, res) => {
+const cadastrar = async (req, res) => {
+  const SALT_SIZE = 64;
   try {
     const nickname = req.body.regsNickname;
     const userGivenPassword = req.body.regsPassword;
@@ -87,17 +54,18 @@ const registrar = async (req, res) => {
       return;
     }
 
-    const salt = crypto.randomBytes(SALT_SIZE).toString('base64');
+    const salt = crypto.randomBytes(SALT_SIZE).toString('hex');
     const hash = await hashPassword(userGivenPassword, salt);
+    const tmpSession = '';
 
     if (hash === null || salt === null) {
       res.send('erro na registração, tente novamente');
       return;
     }
 
-    const queryStr = 'INSERT INTO users (nickname, password, salt) values ($1, $2, $3)';
+    const queryStr = 'INSERT INTO users (nickname, password, salt, session) values ($1, $2, $3, $4)';
     const client = await pool.connect();
-    const result = await client.query(queryStr, [nickname, hash, salt]);
+    const result = await client.query(queryStr, [nickname, hash, salt, tmpSession]);
     client.release();
 
     if (result.rowCount === 1) {
@@ -113,8 +81,6 @@ const registrar = async (req, res) => {
 };
 
 module.exports = {
-  getRegistrar,
-  getLogin,
-  logar,
-  registrar,
+  entrar,
+  cadastrar,
 };
