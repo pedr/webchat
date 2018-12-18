@@ -5,7 +5,7 @@ const db = require('../services/database.js');
 const ROOM = 'private';
 const INFO = {
   nickname: '>>> COMANDO',
-  message: '?users ?baile',
+  message: '?users',
 };
 
 async function newUserOnChat(session) {

@@ -6,6 +6,22 @@ const pool = new Pool({
   ssl: true,
 });
 
+async function createNewUser(nickname, hashedPassword, salt, session = '') {
+  try {
+    const client = await pool.connect();
+    const queryString = 'INSERT INTO users (nickname, password, salt, session) values ($1, $2, $3, $4)';       
+    const result = await client.query(queryString, [nickname, hashedPassword, salt, session]);
+    client.release();
+    if (result.rowCount !== 1) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+
 async function getUserById(userId) {
   try {
     const client = await pool.connect();
@@ -107,6 +123,7 @@ async function removeUserOnline(id, sala = 1) {
 
 module.exports = {
   pool,
+  createNewUser,
   getUserById,
   getUserByNickname,
   insertToken,

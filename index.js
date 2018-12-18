@@ -12,6 +12,7 @@ const registration = require('./routes/registration.js');
 const login = require('./routes/login.js');
 const chat = require('./routes/chat.js');
 const webChat = require('./routes/webChat');
+const db = require('./services/database.js');
 
 const PORT = process.env.PORT || 5000;
 
@@ -33,6 +34,12 @@ app.post('/login', login.account);
 
 app.get('/cadastrar', registration.get);
 app.post('/cadastrar', registration.newAccount);
+
+app.get('/users/:sala', async (req, res) => {
+  const { sala } = req.params;
+  const users = await db.getUsersOnline(sala);
+  res.json(users);
+});
 
 io.on('connection', (socket) => {
   socket.on('new user', webChat.newUserOnChat);

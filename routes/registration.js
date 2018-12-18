@@ -1,7 +1,7 @@
 
 const crypto = require('crypto');
 
-const { pool } = require('../services/database.js');
+const db = require('../services/database.js');
 const { hashPassword, registrationCheck } = require('../services/registrationUtils.js');
 
 const newAccount = async (req, res) => {
@@ -17,23 +17,19 @@ const newAccount = async (req, res) => {
     }
 
     const salt = crypto.randomBytes(SALT_SIZE).toString('hex');
-    const hash = await hashPassword(userGivenPassword, salt);
+    const hashedPassword = await hashPassword(userGivenPassword, salt);
     const tmpSession = '';
 
-    if (hash === null || salt === null) {
+    if (hashedPassword === null || salt === null) {
       res.send('erro na registração, tente novamente');
       return;
     }
+    const insertNewUser = db.createNewUser(nickname, hashedPassword, salt, tmpSession);
 
-    const queryStr = 'INSERT INTO users (nickname, password, salt, session) values ($1, $2, $3, $4)';
-    const client = await pool.connect();
-    const result = await client.query(queryStr, [nickname, hash, salt, tmpSession]);
-    client.release();
-
-    if (result.rowCount === 1) {
+    if (insertNewUser) {
       res.redirect('/login');
     } else {
-      console.error('Erro na hora de regitrar: ', result);
+      console.error('Erro na hora de regitrar');
       res.send('alguma coisa deu errado, não sei o que');
     }
   } catch (err) {

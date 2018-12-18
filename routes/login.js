@@ -1,23 +1,21 @@
 
 const crypto = require('crypto');
 
-const { pool, insertToken } = require('../services/database.js');
+const db = require('../services/database.js');
 const { hashPassword } = require('../services/registrationUtils.js');
 
 const account = async (req, res) => {
   const { nickname } = req.body;
   const userGivenPassword = req.body.password;
   try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM users WHERE nickname = $1', [nickname]);
-    client.release();
+    const result = await db.getUserByNickname(nickname);
 
-    if (result.rows.length === 0) {
+    if (!result) {
       res.redirect('/');
       return;
     }
 
-    const { id, password, salt } = result.rows[0];
+    const { id, password, salt } = result;
     const userGivenHash = await hashPassword(userGivenPassword, salt);
 
     if (userGivenHash === null) {
@@ -30,7 +28,7 @@ const account = async (req, res) => {
       return;
     }
     const session = crypto.randomBytes(32).toString('hex');
-    const sucess = await insertToken(id, session);
+    const sucess = await db.insertToken(id, session);
     if (!sucess) {
       throw new Error('não conseguiu criar session token');
     }
