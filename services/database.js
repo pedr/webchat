@@ -9,7 +9,7 @@ const pool = new Pool({
 async function createNewUser(nickname, hashedPassword, salt, session = '') {
   try {
     const client = await pool.connect();
-    const queryString = 'INSERT INTO users (nickname, password, salt, session) values ($1, $2, $3, $4)';       
+    const queryString = 'INSERT INTO users (nickname, password, salt, session) values ($1, $2, $3, $4)';
     const result = await client.query(queryString, [nickname, hashedPassword, salt, session]);
     client.release();
     if (result.rowCount !== 1) {
@@ -71,6 +71,7 @@ async function getUserByToken(session) {
     const client = await pool.connect();
     const result = await client.query('SELECT * FROM users WHERE session = $1', [session]);
     client.release();
+    if (result.rowCount === 0) return null;
     return result.rows[0];
   } catch (err) {
     console.error(err);

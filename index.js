@@ -32,6 +32,8 @@ app.get('/chat', chat.getChat);
 app.get('/login', login.get);
 app.post('/login', login.account);
 
+app.get('/logout', login.logout);
+
 app.get('/cadastrar', registration.get);
 app.post('/cadastrar', registration.newAccount);
 

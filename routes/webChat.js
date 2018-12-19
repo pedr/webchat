@@ -12,11 +12,14 @@ async function newUserOnChat(session) {
   try {
     const socket = this;
     const { nickname, id } = await db.getUserByToken(session);
-    db.addUserOnline(id);
+    await db.addUserOnline(id);
+    const usersOnline = await db.getUsersOnline();
     const username = nickname;
 
     socket.emit('chat message', INFO);
     socket.join(ROOM);
+    socket.broadcast.to(ROOM).emit('refresh userlist', usersOnline);
+    socket.emit('refresh userlist', usersOnline);
     socket.to(ROOM).emit('system message',
       { type: username, message: 'entrou' });
   } catch (err) {
@@ -60,9 +63,11 @@ async function disconnect() {
     const socket = this;
     const { session } = getCookies(socket.request.headers.cookie);
     const { nickname, id } = await db.getUserByToken(session);
-    db.removeUserOnline(id);
+    await db.removeUserOnline(id);
+    const usersOnline = await db.getUsersOnline();
     socket.to(ROOM).emit('system message',
       { type: '>>> SAIU DA SALA', message: nickname });
+    socket.broadcast.to(ROOM).emit('refresh userlist', usersOnline);
   } catch (err) {
     console.error(err);
   }

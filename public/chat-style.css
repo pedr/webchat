@@ -1,11 +1,11 @@
 body {
   overflow: hidden;
 }
-ul {
+#chat ul {
   overflow-y: scroll;
   height: 55vh;
 }
-li {
+#chat li {
   list-style: none;
   background-color: burlywood;
   margin: 0;
@@ -13,7 +13,7 @@ li {
   padding: 0.4em;
   overflow-wrap: break-word;
 }
-li:nth-child(2n) {
+#chat li:nth-child(2n) {
   background-color: blanchedalmond;
 }
 
@@ -36,7 +36,7 @@ form[message] {
 
 @media only screen and (min-width: 700px) {
   body {
-    margin: 10%;
+    margin: 5%;
   }
 }
 

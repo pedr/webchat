@@ -32,13 +32,20 @@ const account = async (req, res) => {
     if (!sucess) {
       throw new Error('não conseguiu criar session token');
     }
-    res.append('Set-Cookie', `username=${nickname}`);
-    res.append('Set-Cookie', `session=${session}`);
+    const ONE_DAY = 86400;
+    res.append('Set-Cookie', `username=${nickname}; Max-age=${ONE_DAY}`);
+    res.append('Set-Cookie', `session=${session}; Max-age=${ONE_DAY}`);
     res.redirect('/chat');
   } catch (e) {
     console.log(e);
     res.redirect('/login');
   }
+};
+
+const logout = (req, res) => {
+  res.append('Set-Cookie', `username=; Max-age=1`);
+  res.append('Set-Cookie', `session=; Max-age=1`);
+  res.redirect('/');
 };
 
 const get = (req, res) => {
@@ -48,4 +55,5 @@ const get = (req, res) => {
 module.exports = {
   account,
   get,
+  logout,
 };
