@@ -19,12 +19,15 @@ const newAccount = async (req, res) => {
     const salt = crypto.randomBytes(SALT_SIZE).toString('hex');
     const hashedPassword = await hashPassword(userGivenPassword, salt);
     const tmpSession = '';
+    const socketSession = '';
 
     if (hashedPassword === null || salt === null) {
       res.send('erro na registração, tente novamente');
       return;
     }
-    const insertNewUser = db.createNewUser(nickname, hashedPassword, salt, tmpSession);
+    const insertNewUser = db.createNewUser(
+      nickname, hashedPassword, salt, tmpSession, socketSession,
+    );
 
     if (insertNewUser) {
       res.redirect('/login');

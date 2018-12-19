@@ -59,4 +59,5 @@ sendButton.addEventListener('click', (event) => {
 socket.emit('new user', session);
 socket.on('chat message', obj => newMsg(obj.nickname, obj.message));
 socket.on('system message', obj => newMsg(obj.type, obj.message, 'user-event'));
+socket.on('private message', obj => newMsg(obj.nickname, obj.message));
 socket.on('refresh userlist', list => refreshUserlist(list));

@@ -3,20 +3,18 @@ const { getCookies } = require('../services/chatUtils.js');
 const db = require('../services/database.js');
 
 const ROOM = 'private';
-const INFO = {
-  nickname: '>>> COMANDO',
-  message: '?users',
-};
 
 async function newUserOnChat(session) {
   try {
     const socket = this;
     const { nickname, id } = await db.getUserByToken(session);
+    db.updateSocketSession(id, socket.id);
     await db.addUserOnline(id);
     const usersOnline = await db.getUsersOnline();
     const username = nickname;
 
-    socket.emit('chat message', INFO);
+    socket.emit('system message',
+      { type: 'SYSTEM MESSAGE', message: 'Welcome to the chat, use @nickname to send a private message' });
     socket.join(ROOM);
     socket.broadcast.to(ROOM).emit('refresh userlist', usersOnline);
     socket.emit('refresh userlist', usersOnline);
@@ -27,14 +25,16 @@ async function newUserOnChat(session) {
   }
 }
 
-async function comando(msg, io) {
+async function privateMsg(msg, from, io) {
   try {
-    if (msg.trim() === '?users') {
-      const users = await db.getUsersOnline();
-      const obj = { type: 'ONLINE', message: users.toString() };
-      io.to(ROOM).emit('system message', obj);
-      return;
-    }
+    const slicedMessage = msg.slice(1).split(' ');
+    const to = slicedMessage.shift();
+    const toData = await db.getUserByNickname(to);
+    const socketSession = toData.socket_session;
+
+    const privateMessage = slicedMessage.join(' ').trim();
+    io.to(socketSession).emit('private message',
+      { nickname: `PRIVATE FROM ${from}`, message: privateMessage });
   } catch (err) {
     console.error(err);
   }
@@ -46,8 +46,8 @@ async function chatMessage(session, msg, io) {
 
     const { nickname } = await db.getUserByToken(session);
     const username = nickname;
-    if (msg[0] === '?') {
-      comando(msg, io);
+    if (msg[0] === '@') {
+      privateMsg(msg, username, io);
       return;
     }
 

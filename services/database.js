@@ -122,6 +122,19 @@ async function removeUserOnline(id, sala = 1) {
   }
 }
 
+async function updateSocketSession(id, socketSession) {
+  try {
+    const client = await pool.connect();
+    const queryString = 'UPDATE users SET socket_session = $1 WHERE id = $2';
+    await client.query(queryString, [socketSession, id]);
+    client.release();
+    return true;
+  } catch (err) {
+    console.error(err);
+  }
+  return null;
+}
+
 module.exports = {
   pool,
   createNewUser,
@@ -132,4 +145,5 @@ module.exports = {
   getUsersOnline,
   addUserOnline,
   removeUserOnline,
+  updateSocketSession,
 };
