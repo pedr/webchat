@@ -1,10 +1,11 @@
 
 <%- include('partials/header', pag); %>
     <main>
+      <p>Para cadastrar é necessário apenas 4 letras ou dígitos para o nick e a senha.</p>
       <form method="post" action="/cadastrar">
         Nickname: <input type="text" name="regsNickname" autofocus><br>
         Password: <input type="password" name="regsPassword"><br>
-        RE-password: <input type="password" name="confirmPassword"><br>
+        Confirme password: <input type="password" name="confirmPassword"><br>
         <button type="submit" name="registrar" value="Submit">Submit </button>
       </form>
     </main>

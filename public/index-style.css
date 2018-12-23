@@ -11,36 +11,38 @@ body {
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   font-size: 18px;
   margin: 3%;
+  margin-top: 1%;
 }
 
 h1{
   margin-top: 5%;
   font-size: 3em;
-  line-height: 1.75em;
+  line-height: 1.25em;
   text-align: center;
   border-bottom: 3px solid white;
   color: white;
 }
 
 nav {
-  margin-top: 10%;
+  margin-top: 5%;
 }
 
 nav ul {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
-  font-size: 1.5em;
+  font-size: 1.25em;
   line-height: 1.5em;
   justify-content: space-around;
 }
 
 nav li {
   background: var(--for-color);
-  padding: 0.2em;
+  padding: 0.10em;
   border-radius: 10px;
   border: 2px solid black;
   box-shadow: 8px 8px 8px black;
-  margin-bottom: 5%;
+  margin-bottom: 0%;
 }
 
 nav li:hover {
@@ -72,6 +74,7 @@ main a {
   overflow-y: scroll;
   height: 55vh;
 }
+
 #chat li {
   list-style: none;
   background-color: var(--pr-color);
@@ -84,24 +87,38 @@ main a {
   background-color: var(--se-color);
 }
 
-form[message] {
-  position: fixed;
-  bottom: 0;
+form[name=message] {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   margin-bottom: 1%;
-  justify-content: center;
-  background-color: cornflowerblue;
-}
-
-#control {
-  margin: 3% 0 3% 0;
-  display: flex;
   justify-content: space-between;
 }
 
+form[name=message] input {
+  flex-grow: 1;
+  margin-right: 3%;
+}
+
+form[name=message] button {
+  margin-top: 2%;
+}
+
+.user-event {
+  background-color: var(--for-color) !important;
+  color: white;
+  font-style: italic;
+  border: 1px solid var(--pr-color);
+}
+
+#control {
+  margin: 3% 3% 3% 1%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 button {
-  padding: 3%;
+  padding: 2%;
   border-radius: 10px;
   background-color: var(--for-color);
   border: 2px solid black;
@@ -109,6 +126,105 @@ button {
   color: white;
 }
 
+#logout {
+  border: 3px solid red;
+  color: red;
+  font-weight: 800;
+}
+
 input {
-  padding: 3%;
+  margin-top: 2%;
+  padding: 0.3em;
+  border-radius: 10px;
+  font-size: 1em;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0px 0px 5px yellow;
+}
+
+h2 {
+  margin-top: 2%;
+  font-size: 1.5em;
+}
+
+main form {
+  display: flex;
+  flex-direction: column;
+  text-indent: 0;
+  font-size: 1.2em;
+  justify-content: center;
+}
+
+main p {
+  margin-bottom: 3%;
+}
+
+main form input {
+  padding: 0.2em;
+}
+
+main form button {
+  padding: 0.5em;
+  font-size: 1.2em;
+}
+
+#users {
+  text-indent: 1em;
+}
+
+
+@media only screen and (min-width: 400px) {
+  nav ul{
+    flex-direction: row;
+  }
+  nav li {
+    padding: 3%;
+  }
+  #control {
+    justify-content: space-around;
+  }
+
+  @media only screen and (min-width: 500px) {
+    body {
+      margin-left: 10%;
+      margin-right: 10%;
+    }
+    nav li {
+      padding: 0.7em;
+    }
+
+    @media only screen and (min-width: 650px) {
+      body {
+      margin-left: 15%;
+      margin-right: 15%;
+      }
+
+      nav li {
+        padding: 0.6em;
+      }
+
+      @media only screen and (min-width: 750px) {
+        body {
+          margin-left: 18%;
+          margin-right: 18%;
+        }
+
+        nav li{
+          padding: 0.5em
+        }
+
+        @media only screen and (min-width: 850px) {
+          body {
+            margin-left: 23%;
+            margin-right: 23%;
+          }
+          nav li {
+            padding: 0.4em;
+          }
+        }
+      }
+    }
+  }
 }
