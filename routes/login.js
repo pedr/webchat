@@ -49,7 +49,8 @@ const logout = (req, res) => {
 };
 
 const get = (req, res) => {
-  res.redirect('/login.html');
+  const pag = { title: 'Login' };
+  res.render('login.ejs', { pag });
 };
 
 module.exports = {

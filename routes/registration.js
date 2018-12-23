@@ -42,7 +42,8 @@ const newAccount = async (req, res) => {
 };
 
 const get = (req, res) => {
-  res.redirect('/cadastrar.html');
+  const pag = { title: 'Cadastrar' };
+  res.render('cadastrar.ejs', { pag });
 };
 
 module.exports = {

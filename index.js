@@ -23,7 +23,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
-  res.redirect('/index.html');
+  const pag = { title: 'Generic chat' };
+  res.render('index.ejs', { pag });
 });
 
 app.all('/chat', chat.isUserLogged);

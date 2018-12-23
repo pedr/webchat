@@ -1,30 +1,19 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="chat-style.css" rel="stylesheet" type="text/css">
-
-    <title>My websocket chat</title>
-  </head>
-
-  <!-- STYLE -->
-  
-  <!-- BODY -->
-  <body>
-    <h2>chat - <%= username %></h2>
+<%- include('partials/header', pag); %>
+    <div id="control">
+      <a href="#user-list"><button id="online">Users Online</button></a>
+      <button id="logout">Logout</button>
+    </div>
     <div id="chat">
-
       <ul id="messages"></ul>
       
       <form action="" name="message">
-        <input id="m" autocomplete="off" />
+        <input id="m" autocomplete="off" autofocus />
         <button class="send">Send</button>
       </form>
 
     </div>
-      <button id="logout">Logout</button>
-
+    
+    <h2 id="user-list">Users Online:</h2>
     <ul id="users">
     </ul>
 

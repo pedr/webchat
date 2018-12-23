@@ -29,8 +29,8 @@ const getChat = async (req, res) => {
   try {
     const usersOnline = await db.getUsersOnline();
     const { username } = getCookies(req.headers.cookie);
-    const content = await { username, usersOnline };
-    res.render('chat.ejs', content);
+    const pag = await { title: username, usersOnline };
+    res.render('chat.ejs', { pag });
   } catch (err) {
     console.error(err);
     res.redirect('/login');
